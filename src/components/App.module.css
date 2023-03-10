@@ -1,0 +1,21 @@
+.container{
+    padding: 20px;
+    width: 400px;
+    margin-left: auto;
+    margin-right: auto;
+    border: 1px solid black;
+    border-radius: 8px;
+    background-color: antiquewhite;
+}
+
+.title{
+    margin-bottom: 16px;
+}
+
+.smalContainer {
+    padding: 8px;
+    border: 1px solid black;
+    border-radius: 4px;
+    margin-bottom: 16px;
+    background-color:azure;
+}

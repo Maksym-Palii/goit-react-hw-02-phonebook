@@ -1,5 +1,10 @@
 import React, { Component } from "react";
 import { nanoid } from 'nanoid'
+import ContactForm from "components/contactForm/ContactForm"
+import { Filter } from "./filter/Filter";
+import { ContactList } from "./contactList/ContactList";
+import { ContactItem } from "components/contactItem/ContactItem"
+import css from "components/App.module.css"
 
 
 
@@ -11,33 +16,40 @@ export class App extends Component {
         {id: 'id-3', name: 'Eden Clements', number: '645-17-79'},
         { id: 'id-4', name: 'Annie Copeland', number: '227-91-26' },
     ],
-    name: '',
-    number: '',
     filter: ''
   }
 
   contactId() { return nanoid(3) }
  
-  handleSubmit = evt => {
-    evt.preventDefault();
-    const{name, number, contacts} = this.state
+  addContact = (name, number) => {
+    const { contacts } = this.state
+    const data = {
+      id: this.contactId(),
+      name,
+      number,
+    }
+
+    if (contacts.find(obj=>obj.name === name)) {
+      alert(`${name} is already in contacts.`)
+      return;
+    };
+  
     this.setState({
-      contacts: [{
-        id: this.contactId(),
-        name: name,
-        number: number
-      }, ...contacts]
-    })
-    this.reset();
- }
+            contacts: [data, ...contacts]
+          })
+   
+  }  
+  
  
-  handleChange = evt => {
-      const {name, value} = evt.target
-    this.setState({ [name]: value });
-  };
- 
-  reset() {
-    this.setState({name: "", number:""})
+  // reset() {
+  //   this.setState({name: "", number:""})
+  // }
+
+  deleteContact = (contactId) => {
+    
+    this.setState(prevState => ({
+      contacts: prevState.contacts.filter(contact=>contact.id !==contactId)
+    }))    
   }
 
   findContact = evt => {
@@ -46,67 +58,32 @@ export class App extends Component {
   }
 
   getVisibleContacts = () => {
-    const{filter, contacts}=this.state
+    const {filter, contacts} = this.state
     const normalizedFilter = filter.toLowerCase()
     return contacts.filter(contact =>
       contact.name.toLowerCase().includes(normalizedFilter))
   }
 
   render() {
-    const { name, number, filter } = this.state;
-
+    const { filter} = this.state;
     
     const visibleContact = this.getVisibleContacts();
 
     return(
-    <>
-      <h2>Phonebook</h2> 
+    <div className={css.container}>
+      <h2 className={css.title}>Phonebook</h2> 
+        <ContactForm onSubmit={this.addContact} />
+              
         
-      <form onSubmit={this.handleSubmit}>
-        <label>
-          Name
-            <input
-              value={name}
-              onChange={this.handleChange}
-              type="text"
-              name="name"
-              pattern="^[a-zA-Zа-яА-Я]+(([' -][a-zA-Zа-яА-Я ])?[a-zA-Zа-яА-Я]*)*$"
-              title="Name may contain only letters, apostrophe, dash and spaces. For example Adrian, Jacob Mercer, Charles de Batz de Castelmore d'Artagnan"
-              required
-            />    
-          </label>
+        <h2 className={css.title}>Contacts</h2>
+      <div className={css.smalContainer}>
+        <Filter filter={ filter} findContact={this.findContact} />
           
-          <label>
-            Number
-            <input
-              value={number}
-              onChange={this.handleChange}
-              type="tel"
-              name="number"
-              pattern="\+?\d{1,4}?[-.\s]?\(?\d{1,3}?\)?[-.\s]?\d{1,4}[-.\s]?\d{1,4}[-.\s]?\d{1,9}"
-              title="Phone number must be digits and can contain spaces, dashes, parentheses and can start with +"
-              required
-            />
-          </label>
-        
-        <button type="submit">Add contact</button>
-        </form>  
-        
-        <div>
-          <h2>Contacts</h2>
-          <label>Find contacts by Name
-            <input
-              value={filter}
-              onChange={this.findContact}
-              type="text"
-              name="filter"/>
-          </label>
-          <ul>
-            <li>{visibleContact.map(el => (<p key={el.id}>{el.name}: { el.number}</p>)) }</li>
-          </ul>
-        </div>
-      
-    </>
+        <ContactList>
+          <ContactItem visibleContact={visibleContact} onDeleteContact={this.deleteContact} />
+        </ContactList>
+      </div>
+    </div>
   );
   }
 };
